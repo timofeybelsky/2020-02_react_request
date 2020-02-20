@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
-import styles               from './styles.module.css';
-import Spinner              from '../Spinner';
-import UserCard             from '../UserCard';
+import React, { Component }  from 'react';
+import PropTypes             from 'prop-types';
+import styles                from './styles.module.css';
+import Spinner               from '../Spinner';
+import UserCard              from '../UserCard';
+import { REST_API_BASE_URL } from '../../constants';
 
 class UsersList extends Component {
 
@@ -14,13 +16,15 @@ class UsersList extends Component {
     };
   }
 
-  componentDidMount () {
+  loadData = () => {
+    const { users: { length } } = this.state;
+    const getUsersUrl = new URL( `/admin/users?limit=${this.props.limit}&offset=${length}`, REST_API_BASE_URL );
 
-    fetch( '/users.json' )
+    fetch( getUsersUrl )
       .then( response => response.json() )
       .then( data => {
         this.setState( {
-                         users: data,
+                         users: this.state.users.concat( data ),
                          isFetching: false,
                        } );
       } )
@@ -30,6 +34,10 @@ class UsersList extends Component {
                          isFetching: false,
                        } );
       } );
+  };
+
+  componentDidMount () {
+    this.loadData();
   }
 
   renderUsers = () => {
@@ -58,10 +66,19 @@ class UsersList extends Component {
         {
           this.renderSpinner()
         }
+        <button onClick={this.loadData}>LOAD MORE</button>
       </ol>
     );
   }
 
 }
+
+UsersList.propTypes = {
+  limit: PropTypes.number,
+};
+
+UsersList.defaultProps = {
+  limit: 40,
+};
 
 export default UsersList;

@@ -1,7 +1,7 @@
 import React from 'react';
 
 function UserCard (props) {
-  return null;
+  return JSON.stringify(props.user, null, 4);
 }
 
 export default UserCard;
